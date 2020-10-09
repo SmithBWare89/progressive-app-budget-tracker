@@ -5,7 +5,7 @@ const WebpackPwaManifest = require("webpack-pwa-manifest");
 
 module.exports = {
     entry: {
-        app: "./assets/js/script.js"
+        app: "./assets/js/index.js"
     },
     output: {
         filename: '[name].bundle.js',

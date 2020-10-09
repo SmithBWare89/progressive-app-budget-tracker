@@ -21,7 +21,15 @@
   "dependencies": {
     "compression": "^1.7.4",
     "express": "^4.17.1",
+    "file-loader": "^6.1.1",
+    "image-webpack-loader": "^7.0.1",
     "mongoose": "^5.5.15",
-    "morgan": "^1.9.1"
+    "morgan": "^1.9.1",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "devDependencies": {
+    "path": "^0.12.7",
+    "webpack-bundle-analyzer": "^3.9.0",
+    "webpack-pwa-manifest": "^4.2.0"
   }
 }

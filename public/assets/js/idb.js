@@ -52,4 +52,5 @@ function uploadBudget() {
 };
 
 window.addEventListener('online', uploadBudget);
+
 module.exports = saveBudget;

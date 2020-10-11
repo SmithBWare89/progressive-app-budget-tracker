@@ -1,5 +1,6 @@
 let db;
-const request = indexedDB.open('budget', 1);
+const request = window.indexedDB.open('budget', 1);
+console.log(request)
 
 request.onupgradeneeded = function (event) {
     const db = event.target.result;
@@ -29,9 +30,9 @@ function uploadBudget() {
     const getAll = budgetObjectStore.getAll();
     getAll.onsuccess = function() {
         if (getAll.result.length > 0) {
-            fetch('/api/transaction/bulk', {
+            fetch('/api/transaction/', {
                 method: 'POST',
-                body: JSON.stringify(getAll.results),
+                body: JSON.stringify(getAll.result),
                 headers: {
                     Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json'
                 }
@@ -52,5 +53,3 @@ function uploadBudget() {
 };
 
 window.addEventListener('online', uploadBudget);
-
-module.exports = saveBudget;

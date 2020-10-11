@@ -27,7 +27,7 @@ self.addEventListener('install', function (e) {
             .then(() => {
                 e.waitUntil(
                     caches.open(DATA_CACHE_NAME)
-                        .then(async (cache) => {
+                        .then((cache) => {
                             console.log(`Installing caches ${CACHE_NAME} & ${DATA_CACHE_NAME}`);
                         })
                         .catch(err => {
@@ -74,7 +74,7 @@ self.addEventListener('fetch', function (e) {
                     return fetch(e.request)
                         .then(response => {
                             // If the fetch is okay then clone the data to the cache
-                            if (response.ok) {
+                            if (response.status === 200) {
                                 // Set Key to URL
                                 // Set Value to response object
                                 cache.put(e.request.url, response.clone());
@@ -93,12 +93,9 @@ self.addEventListener('fetch', function (e) {
         e.respondWith(
             fetch(e.request)
                 .catch(function() {
-                    console.log(e.request)
-                    console.log(caches)
                     return caches.match(e.request)
                         .then(response => {
-                            console.log(response)
-                            if (response.ok) {
+                            if (response) {
                                 return response;
                             } else if (e.request.headers.get('accept').includes('text/html')) {
                                 // return the cached home page for all requests for html pages

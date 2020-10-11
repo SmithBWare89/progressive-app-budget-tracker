@@ -64,7 +64,7 @@ self.addEventListener('activate', function (e) {
 // Respond with cached resources
 self.addEventListener('fetch', function (e) {
     // If the fetch request includes /api/transaction
-    if (e.request.url.includes('/api/')) {
+    if (e.request.url.includes('/api/transaction')) {
         e.respondWith(
             // Open the data cache
             caches

@@ -1,6 +1,5 @@
-const APP_PREFIX = 'BudgetTracker-';
-const VERSION = 'version_01';
-const CACHE_NAME = APP_PREFIX + VERSION
+const CACHE_NAME = 'BudgetTracker-V1'
+const DATA_CACHE_NAME = 'DataCache-V1'
 const FILES_TO_CACHE = [
     "/",
     "./index.html",
@@ -20,23 +19,40 @@ const FILES_TO_CACHE = [
 // Cache resources
 self.addEventListener('install', function (e) {
     e.waitUntil(
-        caches.open(CACHE_NAME).then(function (cache) {
-            console.log('installing cache : ' + CACHE_NAME)
-            return cache.addAll(FILES_TO_CACHE)
-        })
+        caches
+            .open(CACHE_NAME)
+            .then(function (cache) {
+                cache.addAll(FILES_TO_CACHE)
+            })
+            .then(() => {
+                e.waitUntil(
+                    caches.open(DATA_CACHE_NAME)
+                        .then(async (cache) => {
+                            console.log(`Installing caches ${CACHE_NAME} & ${DATA_CACHE_NAME}`);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                )
+            })
     )
 })
 
 // Delete outdated caches
 self.addEventListener('activate', function (e) {
     e.waitUntil(
-        caches.keys().then(function (keyList) {
-            let cacheKeeplist = keyList.filter(function (key) {
-                return key.indexOf(APP_PREFIX);
+        // Grab all of the cache keys
+        caches.keys()
+            .then(function (keyList) {
+                // Create a new array of only the caches related to the project
+                let cacheKeeplist = keyList.filter(function (key) {
+                return key === CACHE_NAME || DATA_CACHE_NAME;
             })
-            cacheKeeplist.push(CACHE_NAME);
+            // Return a promise that loops over the caches grabbed
             return Promise.all(keyList.map(function (key, i) {
+                // If a cache doesn't match those related to the project
                 if (cacheKeeplist.indexOf(key) === -1) {
+                    // Delete the cache
                     console.log('deleting cache : ' + keyList[i]);
                     return caches.delete(keyList[i]);
                 }
@@ -47,15 +63,49 @@ self.addEventListener('activate', function (e) {
 
 // Respond with cached resources
 self.addEventListener('fetch', function (e) {
-    e.respondWith(
-        caches.match(e.request).then(function (request) {
-            if (request) { // if cache is available, respond with cache
-                console.log('responding with cache : ' + e.request.url)
-                return request
-            } else {       // if there are no cache, try fetching request
-                console.log('file is not cached, fetching : ' + e.request.url)
-                return fetch(e.request)
-            }
-        })
-    )
-})
+    // If the fetch request includes /api/transaction
+    if (e.request.url.includes('/api/transaction')) {
+        e.respondWith(
+            // Open the data cache
+            caches
+                .open(DATA_CACHE_NAME)
+                .then(cache => {
+                    // Fetch new data
+                    return fetch(e.request)
+                        .then(response => {
+                            // If the fetch is okay then clone the data to the cache
+                            if (response.ok) {
+                                // Set Key to URL
+                                // Set Value to response object
+                                cache.put(e.request.url, response.clone());
+                            }
+                            return response;
+                        })
+                        .catch(err => {
+                            return cache.match(e.request);
+                        })
+                })
+                .catch(err => console.log(err))
+        )
+    } 
+    else {
+        // If fetch unsuccessful
+        e.respondWith(
+            fetch(e.request)
+                .catch(function() {
+                    console.log(e.request)
+                    console.log(caches)
+                    return caches.match(e.request)
+                        .then(response => {
+                            console.log(response)
+                            if (response.ok) {
+                                return response;
+                            } else if (e.request.headers.get('accept').includes('text/html')) {
+                                // return the cached home page for all requests for html pages
+                                return caches.match('/');
+                            }
+                        })
+                })
+        )
+    }
+});

@@ -15,63 +15,24 @@ const FILES_TO_CACHE = [
     "./assets/icons/icon-384x384.png",
     "./assets/icons/icon-512x512.png"
 ];
-
-// Cache resources
-// self.addEventListener('install', function (e) {
-//     e.waitUntil(
-//         caches
-//             .open(CACHE_NAME)
-//             .then(function (cache) {
-//                 cache.addAll(FILES_TO_CACHE)
-//             })
-//             .then(() => {
-//                 e.waitUntil(
-//                     caches.open(DATA_CACHE_NAME)
-//                         .then((cache) => {
-//                             console.log(`Installing caches ${CACHE_NAME} & ${DATA_CACHE_NAME}`);
-//                         })
-//                         .catch(err => {
-//                             console.log(err);
-//                         })
-//                 )
-//             })
-//     )
-// })
+const url = '/api/transaction';
+const options = {
+    headers: {
+        'Cache-Control': 'public, max-age=3600'
+    }
+}
 
 self.addEventListener('install', async function(e) {
     try {
         const fileCache = await caches.open(CACHE_NAME);
         await fileCache.addAll(FILES_TO_CACHE);
         const dataCache = await caches.open(DATA_CACHE_NAME);
-        const dataFetchResponse = await fetch('/api/transaction');
+        const dataFetchResponse = await fetch('/api/transaction', options);
         return await dataCache.put('/api/transaction', dataFetchResponse);
     } catch (error) {
         console.log(error);
     }
 });
-
-// Delete outdated caches
-// self.addEventListener('activate', function (e) {
-//     e.waitUntil(
-//         // Grab all of the cache keys
-//         caches.keys()
-//             .then(function (keyList) {
-//                 // Create a new array of only the caches related to the project
-//                 let cacheKeeplist = keyList.filter(function (key) {
-//                 return key === CACHE_NAME || DATA_CACHE_NAME;
-//             })
-//             // Return a promise that loops over the caches grabbed
-//             return Promise.all(keyList.map(function (key, i) {
-//                 // If a cache doesn't match those related to the project
-//                 if (cacheKeeplist.indexOf(key) === -1) {
-//                     // Delete the cache
-//                     console.log('deleting cache : ' + keyList[i]);
-//                     return caches.delete(keyList[i]);
-//                 }
-//             }));
-//         })
-//     );
-// });
 
 self.addEventListener('activate', async (e) => {
     try {
@@ -92,6 +53,7 @@ self.addEventListener('activate', async (e) => {
         console.log(error)
     }
 })
+
 
 // Respond with cached resources
 self.addEventListener('fetch', function (e) {

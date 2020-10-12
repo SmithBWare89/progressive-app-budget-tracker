@@ -14,7 +14,12 @@ app.use(compression());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(express.static("public"));
+app.use(express.static("public", {
+  etag: true,
+  setHeaders: function(res, path, stat) {
+    res.set('Cache-Control', 'max-age: 3600')
+  }
+}));
 
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,

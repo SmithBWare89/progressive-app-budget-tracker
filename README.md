@@ -37,6 +37,7 @@ You can visit the deployed [web application](https://progressive-budget-tracker-
 ![Morgan Badge](https://img.shields.io/badge/Node%20Package-Morgan-blue)
 ![Compression Badge](https://img.shields.io/badge/Node%20Package-Compression-blue)
 ![Path Badge](https://img.shields.io/badge/Node%20Package-Path-blue)
+![Moment Badge](https://img.shields.io/badge/Node%20Package-Moment-blue)
 
 ## Contributing
 Create a pull request on the repository.
